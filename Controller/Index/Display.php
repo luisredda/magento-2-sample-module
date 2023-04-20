@@ -17,7 +17,8 @@ class Display extends \Magento\Framework\App\Action\Action
 
 	public function execute()
 	{
-		echo 'Hello Harness';
-		exit;
+		$resultPage = $this->_pageFactory->create();
+		$resultPage->getConfig()->getTitle()->set(__('Hello Harness'));
+		return $resultPage;
 	}
 }
