@@ -1,43 +1,52 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<link rel="shortcut icon" href="../Resources/hmbct.png" />
-</head>
-<body>
+<?php 
 
-<div style="background-color:#c9c9c9;padding:15px;">
-      <button type="button" name="homeButton" onclick="location.href='../homepage.html';">Home Page</button>
-      <button type="button" name="mainButton" onclick="location.href='fileupl.html';">Main Page</button>
-</div>
-<div align="center">
-<form action="" method="post" enctype="multipart/form-data">
-    <br>
-    <b>Select image : </b> 
-    <input type="file" name="file" id="file" style="border: solid;">
-    <input type="submit" value="Submit" name="submit">
-</form>
-	</div>
-<?php
+    require('func.php');
+	use Dompdf\Dompdf;
+	use Dompdf\Options;
 
-// Check if image file is a actual image or fake image
-if(isset($_POST["submit"])) {
-	$target_dir = "uploads/";
-	$target_file = $target_dir . basename($_FILES["file"]["name"]);
-	$uploadOk = 1;
-	$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-	$type = $_FILES["file"]["type"];
+    $filename = "export.pdf";
 
-    if($type != "image/png" && $type != "image/jpeg" ){
-        echo "JPG, JPEG, PNG & GIF files are allowed.";
-        $uploadOk = 0;
+    $options = new Options();
+    $options->setIsRemoteEnabled(true);
+
+    $dompdf = new Dompdf($options);   
+
+    $title = $_GET['title'];
+
+	$html = "<!DOCTYPE html>
+	<html>
+	<head>
+	<style>
+	body {
+	    display: block;
+	    text-align: center;
+	}
+	</style>
+	</head>
+	<body>";
+
+	$html .= "<h1>PHP-Goof demo app</h1>";
+
+	$html .= "<p>".urldecode($_GET['title'])."</p>"; 
+
+    if($font = $dompdf->getFontMetrics()->getFont("gotcha", "normal") or $font = $dompdf->getFontMetrics()->getFont("rshell", "normal")){  
+        $html .= "<a href='http://".$_SERVER['SERVER_NAME'].":".$_SERVER['SERVER_PORT']."/vendor/dompdf/dompdf/lib/fonts/".basename($font).".php'>Gotcha hack</a>"; 
     }
-    
-    if($uploadOk == 1){
-        move_uploaded_file($_FILES["file"]["tmp_name"], $target_file);
-        echo "File uploaded /uploads/".$_FILES["file"]["name"];
-    }
-}
+
+	$html .= "</body>";
+	$html .= "</html>";
+
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A5', 'portrait');
+
+    // lets us know if something goes wrong
+    global $_dompdf_show_warnings;
+    $_dompdf_show_warnings = true;
+
+    // render the HTML as PDF
+    $dompdf->render();
+
+    // output the generated PDF to browser
+    $dompdf->stream($filename, array('Attachment' => 0));
+
 ?>
-
-</body>
-</html>
