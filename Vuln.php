@@ -1,30 +1,51 @@
 <?php
 
-namespace Mageplaza\HelloWorld\Controller\Index;
+define('DB_SERVER', 'database');
+define('DB_USERNAME', 'root');
+define('DB_PASSWORD', 'example');
+define('DB_NAME', 'example');
 
-class Test extends \Magento\Framework\App\Action\Action
-{
+session_start();
 
-	public function execute()
-	{
-		$textDisplay = new \Magento\Framework\DataObject(array('text' => 'Mageplaza'));
-		$this->_eventManager->dispatch('mageplaza_helloworld_display_text', ['mp_text' => $textDisplay]);
-		echo $textDisplay->getText();
-    
-        // sending the cookie
-    $secret_word = 'gargamel';
-    $id = 123745323;
-    $hash = md5($secret_word.$id);
-    setcookie('id',$id.'-'.$hash);
+if(isset($_SESSION['user'])) {
+	header("Location: todo.php");
+}
 
-    // receiving and verifying the cookie
-    list($cookie_id,$cookie_hash) = explode('-',$_COOKIE['id']);
-    if (md5($secret_word.$cookie_id) == $cookie_hash) {
-        $id = $cookie_id;
-    } else {
-        die('Invalid cookie.');
-    }
+// DB Connection
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+	$pdo = new PDO('mysql:host='.DB_SERVER.';dbname='.DB_NAME, DB_USERNAME, DB_PASSWORD);
 
-		exit;
+	$username = $_POST["username"];
+	$password = $_POST["password"];
+
+	$sql = 'SELECT * FROM Users WHERE username ="' . $username . '" AND password ="' . $password . '"';
+	$result = $pdo->query($sql)->fetchColumn();
+
+	if ($result) {
+		$_SESSION['user'] = $username;
+		header("location: todo.php");
 	}
 }
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <link rel="stylesheet" href="pure-min.css">
+ <title>Login</title>
+</head>
+<body>
+<div style="width: 50%; margin: 0 auto">
+ <h2>Login</h2>
+  <form action="" method="post" class="pure-form pure-form-stacked">
+   <fieldset>
+    <label>Username</label>
+    <input type="text" name="username">
+    <label>Password</label>
+    <!-- Should be password, but better for demo-->
+    <input type="text" name="password">
+    <input type="submit" value="Submit" class="pure-button">
+   </fieldset>
+  </form>
+</div>
+</body>
