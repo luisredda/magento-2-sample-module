@@ -18,7 +18,7 @@ class Display extends \Magento\Framework\App\Action\Action
 	public function execute()
 	{
 		$resultPage = $this->_pageFactory->create();
-		$resultPage->getConfig()->getTitle()->set(__('Hello Harness!'));
+		$resultPage->getConfig()->getTitle()->set(__('Hola Equipo Farmacias!'));
 		return $resultPage;
 	}
 }
